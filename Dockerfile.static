@@ -1,0 +1,13 @@
+FROM alpine
+LABEL maintainer "gabe.kahen@inteliquent.com"
+
+ADD casabot /
+
+RUN apk --update upgrade && \
+    apk add curl ca-certificates && \
+    update-ca-certificates && \
+    rm -rf /var/cache/apk/*
+
+HEALTHCHECK --retries=1 CMD ps aux | grep -q [c]asabot
+
+CMD /casabot
