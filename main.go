@@ -30,8 +30,8 @@ func main() {
   go rtm.ManageConnection()
 
   for msg := range rtm.IncomingEvents {
-		switch ev := msg.Data.(type) {
-		case *slack.MessageEvent:
+    switch ev := msg.Data.(type) {
+    case *slack.MessageEvent:
       regex := regexp.MustCompile(
         `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
       )
