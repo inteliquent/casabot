@@ -10,4 +10,4 @@ RUN apk --update upgrade && \
 
 HEALTHCHECK --retries=1 CMD ps aux | grep -q [c]asabot
 
-CMD /casabot
+CMD ["/casabot"]
