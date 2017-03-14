@@ -7,7 +7,7 @@ import (
   "github.com/inteliquent/casatunes"
 )
 
-func nowPlaying(slack_api *slack.Client, ev *slack.MessageEvent) {
+func casa_NowPlaying(slack_api *slack.Client, ev *slack.MessageEvent) {
   CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
 
   message_parameters := slack.NewPostMessageParameters()

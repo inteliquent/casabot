@@ -30,7 +30,7 @@ func main() {
         `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
       )
       if regex.MatchString(ev.Text) {
-        nowPlaying(slack_api, ev)
+        casa_NowPlaying(slack_api, ev)
       }
 
     case *slack.RTMError:
