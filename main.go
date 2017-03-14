@@ -5,7 +5,6 @@ import (
   "os"
   "log"
   "fmt"
-  "regexp"
 )
 
 func main() {
@@ -26,10 +25,10 @@ func main() {
   for msg := range rtm.IncomingEvents {
     switch ev := msg.Data.(type) {
     case *slack.MessageEvent:
-      regex := regexp.MustCompile(
+      /*regex_nowplaying := regexp.MustCompile(
         `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
-      )
-      if regex.MatchString(ev.Text) {
+      )*/
+      if regex_nowplaying.MatchString(ev.Text) {
         casa_NowPlaying(slack_api, ev)
       }
 
