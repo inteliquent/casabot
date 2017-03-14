@@ -5,18 +5,12 @@ import (
   "os"
   "log"
   "fmt"
-  "github.com/inteliquent/casatunes"
   "regexp"
 )
 
 func main() {
   SLACK_TOKEN := os.Getenv("SLACK_TOKEN")
-  CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
   slack_api := slack.New(SLACK_TOKEN)
-  casa_api := casatunes.New(CASA_ENDPOINT)
-
-  message_parameters := slack.NewPostMessageParameters()
-  message_parameters.AsUser = true
 
   logger := log.New(
     os.Stdout,
@@ -36,42 +30,7 @@ func main() {
         `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
       )
       if regex.MatchString(ev.Text) {
-        channelID := ev.Channel
-
-        nowplaying, err := casa_api.NowPlaying("0")
-        if err != nil {
-          log.Fatal(err)
-        }
-
-        attachment := slack.Attachment{
-          Title: "Now Playing",
-          TitleLink: CASA_ENDPOINT,
-          ThumbURL: nowplaying.CurrSong.ArtworkURI,
-          Fields: []slack.AttachmentField{
-            slack.AttachmentField{
-              Title: "Title",
-              Value: nowplaying.CurrSong.Title,
-            },
-            slack.AttachmentField{
-              Title: "Artist",
-              Value: nowplaying.CurrSong.Artists,
-              Short: true,
-            },
-            slack.AttachmentField{
-              Title: "Album",
-              Value: nowplaying.CurrSong.Album,
-              Short: true,
-            },
-          },
-        }
-
-        message_parameters.Attachments = []slack.Attachment{attachment}
-
-        slack_api.PostMessage(
-          channelID,
-          "",
-          message_parameters,
-        )
+        nowPlaying(slack_api, ev)
       }
 
     case *slack.RTMError:
