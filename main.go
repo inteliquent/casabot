@@ -33,7 +33,7 @@ func main() {
 		switch ev := msg.Data.(type) {
 		case *slack.MessageEvent:
       regex := regexp.MustCompile(
-        `what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
+        `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
       )
       if regex.MatchString(ev.Text) {
         channelID := ev.Channel
