@@ -17,7 +17,7 @@ builddocker-amd64:
 	docker cp `docker ps -q -n=1`:/casabot .
 	docker rm -f `docker ps -q -n=1`
 	chmod 755 ./casabot
-	docker build --rm=true -t inteliquent/casabot -f Dockerfile.static .
+	docker build --rm=true -t inteliquent/casabot -f Dockerfile.amd64-static .
 
 builddocker-arm:
 	docker build -t inteliquent/casabot -f ./Dockerfile.build --build-arg GOARCH=arm .
@@ -25,4 +25,4 @@ builddocker-arm:
 	docker cp `docker ps -q -n=1`:/casabot .
 	docker rm -f `docker ps -q -n=1`
 	chmod 755 ./casabot
-	docker build --rm=true -t inteliquent/arm-casabot -f Dockerfile.static .
+	docker build --rm=true -t inteliquent/arm-casabot -f Dockerfile.arm-static .
