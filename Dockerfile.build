@@ -1,7 +1,8 @@
 FROM golang
 
+ARG GOARCH=amd64
 ADD Makefile /
 WORKDIR /
 RUN make setup
-RUN make buildgo
+RUN make buildgo-$GOARCH
 CMD ["/bin/bash"]
