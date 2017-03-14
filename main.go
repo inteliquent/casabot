@@ -28,7 +28,7 @@ func main() {
       /*regex_nowplaying := regexp.MustCompile(
         `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
       )*/
-      if regex_nowplaying.MatchString(ev.Text) {
+      if regexp_nowplaying.MatchString(ev.Text) {
         casa_NowPlaying(slack_api, ev)
       }
 
