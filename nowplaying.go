@@ -25,6 +25,7 @@ func casa_NowPlaying(slack_api *slack.Client, ev *slack.MessageEvent) {
     Title: "Now Playing",
     TitleLink: CASA_ENDPOINT,
     ThumbURL: nowplaying.CurrSong.ArtworkURI,
+    Color: "#aeffa0",
     Fields: []slack.AttachmentField{
       slack.AttachmentField{
         Title: "Title",
