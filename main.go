@@ -35,7 +35,7 @@ func main() {
       if regexp_playsong.MatchString(ev.Text) {
         casa_PlaySong(slack_api, ev)
       }
-      
+
     case *slack.RTMError:
 			fmt.Printf("Error: %s\n", ev.Error())
 
