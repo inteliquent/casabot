@@ -7,6 +7,6 @@ var (
     `(?i)what(.?s)? (is |song is )?(this|the|playing)( song| now)? ?\??$`,
   )
   regexp_playsong *regexp.Regexp = regexp.MustCompile(
-    `^(?i)play .+ (next|now)$`,
+    `^(?i)(?:@casabot )?listen to (.+)$`,
   )
 )
