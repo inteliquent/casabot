@@ -44,10 +44,10 @@ func casa_PlayerAction(slack_api *slack.Client, ev *slack.MessageEvent) {
         message = fmt.Sprintf("%s has paused playback!", user.RealName)
 
       case "previous":
-        message = fmt.Sprintf("%s is playing the last played song!", user.RealName)
+        message = "_*BACK!!*_"
 
       case "next":
-        message = fmt.Sprintf("%s is playing the next song!", user.RealName)
+        message = "_*NEXT!!*_"
     }
   }
 
