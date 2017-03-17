@@ -9,4 +9,7 @@ var (
   regexp_playsong *regexp.Regexp = regexp.MustCompile(
     `^(?i)(?:@casabot )?listen to (.+)$`,
   )
+  regexp_playeraction *regexp.Regexp = regexp.MustCompile(
+    `^(?i)(?:@casabot )?(play|pause|next|previous) (?:song|track|music)$`
+  )
 )
