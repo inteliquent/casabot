@@ -37,6 +37,9 @@ func main() {
         casa_PlayerAction(slack_api, ev)
       }
 
+      if regexp_boombox.MatchString(ev.Text) {
+        casa_BoomBox(slack_api, ev)
+      }
     case *slack.RTMError:
 			fmt.Printf("Error: %s\n", ev.Error())
 
