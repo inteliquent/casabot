@@ -33,11 +33,22 @@ func casa_BoomBox(slack_api *slack.Client, ev *slack.MessageEvent) {
   case "start":
     if !boombox_started {
       log.Printf("Starting BoomBox in channel [%s]", ev.Channel)
+      slack_api.PostMessage(
+        ev.Channel,
+        "OK - I'll post every song change in this channel.",
+        message_parameters,
+      )
       go boomBox(bb_ticker.C, bb_quit, slack_api, ev)
       boombox_started = true
     }
   case "stop":
     if boombox_started {
+      log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
+      slack_api.PostMessage(
+        ev.Channel,
+        "OK - I'll stop posting song changes to this channel.",
+        message_parameters,
+      )
       bb_quit <- 0
       boombox_started = false
     }
@@ -66,7 +77,6 @@ func boomBox(tick <-chan time.Time, quit chan int, slack_api *slack.Client, ev *
         np_current = np_check
       }
     case <-quit:
-      log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
       return
     }
   }
