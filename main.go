@@ -26,7 +26,7 @@ func main() {
     switch ev := msg.Data.(type) {
     case *slack.MessageEvent:
       if regexp_nowplaying.MatchString(ev.Text) {
-        casa_NowPlaying(slack_api, ev)
+        casa_NowPlaying(slack_api, ev.Channel)
       }
 
       if regexp_playsong.MatchString(ev.Text) {

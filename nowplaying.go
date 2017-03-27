@@ -7,14 +7,13 @@ import (
   "github.com/inteliquent/casatunes"
 )
 
-func casa_NowPlaying(slack_api *slack.Client, ev *slack.MessageEvent) {
+func casa_NowPlaying(slack_api *slack.Client, slack_channel_id string) {
   CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
 
   message_parameters := slack.NewPostMessageParameters()
   message_parameters.AsUser = true
 
   casa_api := casatunes.New(CASA_ENDPOINT)
-  channelID := ev.Channel
 
   nowplaying, err := casa_api.NowPlaying("0")
   if err != nil {
@@ -47,7 +46,7 @@ func casa_NowPlaying(slack_api *slack.Client, ev *slack.MessageEvent) {
   message_parameters.Attachments = []slack.Attachment{attachment}
 
   slack_api.PostMessage(
-    channelID,
+    slack_channel_id,
     "",
     message_parameters,
   )
