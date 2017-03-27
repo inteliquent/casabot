@@ -10,6 +10,7 @@ import (
 
 var (
   boombox_started bool = false
+  bb_quit chan int = make(chan int, 1)
 )
 
 func casa_BoomBox(slack_api *slack.Client, ev *slack.MessageEvent) {
@@ -22,6 +23,7 @@ func casa_BoomBox(slack_api *slack.Client, ev *slack.MessageEvent) {
   user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
 
   checkInterval, err := time.ParseDuration("2s")
+  bb_ticker := time.NewTicker(checkInterval)
 
   if err != nil {
     log.Fatal(err)
@@ -30,15 +32,14 @@ func casa_BoomBox(slack_api *slack.Client, ev *slack.MessageEvent) {
   switch user_input {
   case "start":
     if !boombox_started {
-      log.Println("Starting BoomBox")
-      bb_ticker := time.NewTicker(checkInterval)
-      bb_quit := make(chan int, 1)
+      log.Printf("Starting BoomBox in channel [%s]", ev.Channel)
       go boomBox(bb_ticker.C, bb_quit, slack_api, ev)
       boombox_started = true
     }
   case "stop":
     if boombox_started {
-
+      bb_quit <- 0
+      boombox_started = false
     }
   }
 }
@@ -51,6 +52,7 @@ func boomBox(tick <-chan time.Time, quit chan int, slack_api *slack.Client, ev *
   if err != nil {
     log.Fatal(err)
   }
+
   np_check := &casatunes.RESTNowPlayingMediaItem{}
   for {
     select {
@@ -64,7 +66,7 @@ func boomBox(tick <-chan time.Time, quit chan int, slack_api *slack.Client, ev *
         np_current = np_check
       }
     case <-quit:
-      log.Printf("Stopping boombox in channel %s", ev.Channel)
+      log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
       return
     }
   }
