@@ -1,6 +1,7 @@
 package main
 
 import (
+  "errors"
   "log"
   "time"
   "os"
@@ -8,56 +9,46 @@ import (
   "github.com/nlopes/slack"
 )
 
-var (
-  boombox_started bool = false
-  bb_quit chan int = make(chan int, 1)
-)
+func (boombox *boomBox) addChannel_BoomBox(channel string) (error) {
+  log.Println(boombox.Channels)
+  if len(boombox.Channels) > 0 {
+    for _, c := range(boombox.Channels) {
+      if c == channel {
+        return errors.New("Channel already in BoomBox!")
+      }
+    }
+  }
+  boombox.Channels = append(boombox.Channels, channel)
+  return nil
+}
 
-func casa_BoomBox(slack_api *slack.Client, ev *slack.MessageEvent) {
-  //CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
-  //casa_api := casatunes.New(CASA_ENDPOINT)
+func (boombox *boomBox) removeChannel_BoomBox(channel string) (error) {
+  log.Println(boombox.Channels)
+  if len(boombox.Channels) > 0 {
+    for i, c := range(boombox.Channels) {
+      if c == channel {
+        boombox.Channels = append(boombox.Channels[:i], boombox.Channels[i+1:]...)
+        return nil
+      }
+    }
+  }
+  return errors.New("Channel does not exist in BoomBox!")
+}
 
-  message_parameters := slack.NewPostMessageParameters()
-  message_parameters.AsUser = true
+type boomBox struct {
+  Channels []string
+}
 
-  user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
+func (boombox *boomBox) goBoomBox(slack_api *slack.Client) {
+  CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
+  casa_api := casatunes.New(CASA_ENDPOINT)
 
-  checkInterval, err := time.ParseDuration("2s")
-  bb_ticker := time.NewTicker(checkInterval)
-
+  check_interval, err := time.ParseDuration("2s")
   if err != nil {
     log.Fatal(err)
   }
+  tick := time.NewTicker(check_interval).C
 
-  switch user_input {
-  case "start":
-    if !boombox_started {
-      log.Printf("Starting BoomBox in channel [%s]", ev.Channel)
-      slack_api.PostMessage(
-        ev.Channel,
-        "OK - I'll post every song change in this channel.",
-        message_parameters,
-      )
-      go boomBox(bb_ticker.C, bb_quit, slack_api, ev)
-      boombox_started = true
-    }
-  case "stop":
-    if boombox_started {
-      log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
-      slack_api.PostMessage(
-        ev.Channel,
-        "OK - I'll stop posting song changes to this channel.",
-        message_parameters,
-      )
-      bb_quit <- 0
-      boombox_started = false
-    }
-  }
-}
-
-func boomBox(tick <-chan time.Time, quit chan int, slack_api *slack.Client, ev *slack.MessageEvent) {
-  CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
-  casa_api := casatunes.New(CASA_ENDPOINT)
 
   np_check := &casatunes.RESTNowPlayingMediaItem{}
   np_current, err := casa_api.NowPlaying("0")
@@ -73,11 +64,13 @@ func boomBox(tick <-chan time.Time, quit chan int, slack_api *slack.Client, ev *
         log.Fatal(err)
       }
       if np_check.CurrSong.ID != np_current.CurrSong.ID {
-        casa_NowPlaying(slack_api, ev)
+        if len(boombox.Channels) > 0 {
+          for _, channel := range(boombox.Channels) {
+            casa_NowPlaying(slack_api, channel)
+          }
+        }
         np_current = np_check
       }
-    case <-quit:
-      return
     }
   }
 }

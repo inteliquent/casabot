@@ -11,6 +11,10 @@ func main() {
   SLACK_TOKEN := os.Getenv("SLACK_TOKEN")
   slack_api := slack.New(SLACK_TOKEN)
 
+  boombox := boomBox{}
+
+  go boombox.goBoomBox(slack_api)
+
   logger := log.New(
     os.Stdout,
     "slack-bot: ",
@@ -38,7 +42,15 @@ func main() {
       }
 
       if regexp_boombox.MatchString(ev.Text) {
-        casa_BoomBox(slack_api, ev)
+        user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
+        switch user_input {
+        case "start":
+          log.Printf("Starting BoomBox in channel [%s]", ev.Channel)
+          log.Println(boombox.addChannel_BoomBox(ev.Channel))
+        case "stop":
+          log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
+          log.Println(boombox.removeChannel_BoomBox(ev.Channel))
+        }
       }
     case *slack.RTMError:
 			fmt.Printf("Error: %s\n", ev.Error())
