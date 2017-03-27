@@ -48,12 +48,12 @@ func boomBox(tick <-chan time.Time, quit chan int, slack_api *slack.Client, ev *
   CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
   casa_api := casatunes.New(CASA_ENDPOINT)
 
+  np_check := &casatunes.RESTNowPlayingMediaItem{}
   np_current, err := casa_api.NowPlaying("0")
   if err != nil {
     log.Fatal(err)
   }
 
-  np_check := &casatunes.RESTNowPlayingMediaItem{}
   for {
     select {
     case <-tick:
