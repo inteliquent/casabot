@@ -11,6 +11,9 @@ func main() {
   SLACK_TOKEN := os.Getenv("SLACK_TOKEN")
   slack_api := slack.New(SLACK_TOKEN)
 
+  slack_message_parameters := slack.NewPostMessageParameters()
+  slack_message_parameters.AsUser = true
+
   boombox := boomBox{}
 
   go boombox.start(slack_api)
@@ -45,11 +48,47 @@ func main() {
         user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
         switch user_input {
         case "start":
-          log.Printf("Starting BoomBox in channel [%s]", ev.Channel)
-          log.Println(boombox.addChannel(ev.Channel))
+          err := boombox.addChannel(ev.Channel)
+          if err != nil {
+            log.Printf(
+              "Failed to start BoomBox in channel [%s]: %s",
+              ev.Channel,
+              err,
+            )
+            slack_api.PostMessage(
+              ev.Channel,
+              fmt.Sprint(err),
+              slack_message_parameters,
+            )
+          } else {
+            log.Printf("BoomBox started in channel [%s]", ev.Channel)
+            slack_api.PostMessage(
+              ev.Channel,
+              "BoomBox started! I'll report future song changes to this channel.",
+              slack_message_parameters,
+            )
+          }
         case "stop":
-          log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
-          log.Println(boombox.removeChannel(ev.Channel))
+          err := boombox.removeChannel(ev.Channel)
+          if err != nil {
+            log.Printf(
+              "Failed to stop BoomBox in channel [%s]: %s",
+              ev.Channel,
+              err,
+            )
+            slack_api.PostMessage(
+              ev.Channel,
+              fmt.Sprint(err),
+              slack_message_parameters,
+            )
+          } else {
+            log.Printf("BoomBox stopped in channel [%s]", ev.Channel)
+            slack_api.PostMessage(
+              ev.Channel,
+              "BoomBox stopped! I'll stop reporting song changes to this channel.",
+              slack_message_parameters,
+            )
+          }
         }
       }
     case *slack.RTMError:
