@@ -16,7 +16,6 @@ type boomBox struct {
 // Add a Slack channel to the boomBox object. Return an error
 // if the boomBox object already contains that channel.
 func (boombox *boomBox) addChannel(channel string) (error) {
-  log.Println(boombox.Channels)
   if len(boombox.Channels) > 0 {
     for _, c := range(boombox.Channels) {
       if c == channel {
@@ -31,7 +30,6 @@ func (boombox *boomBox) addChannel(channel string) (error) {
 // Remove a Slack channel from the boomBox object. Return an error
 // if the channel does not exist within the boomBox object.
 func (boombox *boomBox) removeChannel(channel string) (error) {
-  log.Println(boombox.Channels)
   if len(boombox.Channels) > 0 {
     for i, c := range(boombox.Channels) {
       if c == channel {
@@ -55,7 +53,6 @@ func (boombox *boomBox) start(slack_api *slack.Client) {
     log.Fatal(err)
   }
   tick := time.NewTicker(check_interval).C
-
 
   np_check := &casatunes.RESTNowPlayingMediaItem{}
   np_current, err := casa_api.NowPlaying("0")
