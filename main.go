@@ -13,7 +13,7 @@ func main() {
 
   boombox := boomBox{}
 
-  go boombox.goBoomBox(slack_api)
+  go boombox.start(slack_api)
 
   logger := log.New(
     os.Stdout,

@@ -9,6 +9,12 @@ import (
   "github.com/nlopes/slack"
 )
 
+type boomBox struct {
+  Channels []string
+}
+
+// Add a Slack channel to the boomBox object. Return an error
+// if the boomBox object already contains that channel.
 func (boombox *boomBox) addChannel(channel string) (error) {
   log.Println(boombox.Channels)
   if len(boombox.Channels) > 0 {
@@ -22,6 +28,8 @@ func (boombox *boomBox) addChannel(channel string) (error) {
   return nil
 }
 
+// Remove a Slack channel from the boomBox object. Return an error
+// if the channel does not exist within the boomBox object.
 func (boombox *boomBox) removeChannel(channel string) (error) {
   log.Println(boombox.Channels)
   if len(boombox.Channels) > 0 {
@@ -35,11 +43,10 @@ func (boombox *boomBox) removeChannel(channel string) (error) {
   return errors.New("Channel does not exist in BoomBox!")
 }
 
-type boomBox struct {
-  Channels []string
-}
-
-func (boombox *boomBox) goBoomBox(slack_api *slack.Client) {
+// This function is meant to run in a go routine. It will
+// poll the Casatunes API every 2 seconds, and report to
+// any channels in the boomBox object when the song changes
+func (boombox *boomBox) start(slack_api *slack.Client) {
   CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
   casa_api := casatunes.New(CASA_ENDPOINT)
 
@@ -59,6 +66,10 @@ func (boombox *boomBox) goBoomBox(slack_api *slack.Client) {
   for {
     select {
     case <-tick:
+      // on every tick, poll casatunes for the current song.
+      // if the current song (np_current) is different than the
+      // polled song (np_check), chage np_current & post to
+      // configured channels.
       np_check, err = casa_api.NowPlaying("0")
       if err != nil {
         log.Fatal(err)
