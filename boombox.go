@@ -9,7 +9,7 @@ import (
   "github.com/nlopes/slack"
 )
 
-func (boombox *boomBox) addChannel_BoomBox(channel string) (error) {
+func (boombox *boomBox) addChannel(channel string) (error) {
   log.Println(boombox.Channels)
   if len(boombox.Channels) > 0 {
     for _, c := range(boombox.Channels) {
@@ -22,7 +22,7 @@ func (boombox *boomBox) addChannel_BoomBox(channel string) (error) {
   return nil
 }
 
-func (boombox *boomBox) removeChannel_BoomBox(channel string) (error) {
+func (boombox *boomBox) removeChannel(channel string) (error) {
   log.Println(boombox.Channels)
   if len(boombox.Channels) > 0 {
     for i, c := range(boombox.Channels) {

@@ -46,10 +46,10 @@ func main() {
         switch user_input {
         case "start":
           log.Printf("Starting BoomBox in channel [%s]", ev.Channel)
-          log.Println(boombox.addChannel_BoomBox(ev.Channel))
+          log.Println(boombox.addChannel(ev.Channel))
         case "stop":
           log.Printf("Stopping BoomBox in channel [%s]", ev.Channel)
-          log.Println(boombox.removeChannel_BoomBox(ev.Channel))
+          log.Println(boombox.removeChannel(ev.Channel))
         }
       }
     case *slack.RTMError:
