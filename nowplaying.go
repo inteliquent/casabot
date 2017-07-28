@@ -44,10 +44,11 @@ func casa_NowPlaying(slack_api *slack.Client, slack_channel_id string) {
   }
 
   message_parameters.Attachments = []slack.Attachment{attachment}
-
-  slack_api.PostMessage(
-    slack_channel_id,
-    "",
-    message_parameters,
-  )
+  if len(nowplaying.CurrSong.Title) > 0 {
+    slack_api.PostMessage(
+      slack_channel_id,
+      "",
+      message_parameters,
+    )
+  }
 }
