@@ -40,6 +40,10 @@ func main() {
         casa_PlaySong(slack_api, ev)
       }
 
+      if regexp_playalbum.MatchString(ev.Text) {
+        casa_PlayAlbum(slack_api, ev)
+      }
+
       if regexp_searchsong.MatchString(ev.Text) {
         casa_SearchSong(slack_api, ev)
       }
