@@ -32,48 +32,20 @@ func casa_PlaySong(slack_api *slack.Client, ev *slack.MessageEvent) {
     }
   }
 
-  user, err := slack_api.GetUserInfo(ev.User)
-
-  if err != nil {
-    log.Fatal(err)
-  }
+  message := ""
 
   if media_item.Title != "" {
-    attachment := slack.Attachment{
-      Title: user.RealName + " is now playing",
-      TitleLink: CASA_ENDPOINT,
-      ThumbURL: media_item.ArtworkURI,
-      Color: "#aeffa0",
-      Fields: []slack.AttachmentField{
-        slack.AttachmentField{
-          Title: "Title",
-          Value: media_item.Title,
-        },
-        slack.AttachmentField{
-          Title: "Artist",
-          Value: media_item.Artists,
-          Short: true,
-        },
-        slack.AttachmentField{
-          Title: "Album",
-          Value: media_item.Album,
-          Short: true,
-        },
-      },
-    }
-
-    message_parameters.Attachments = []slack.Attachment{attachment}
-
-    _, err := casa_api.MediaSourcesPlayMedia("0", media_item.ID)
-
+    _, err := casa_api.MediaSourcesPlayMedia("0", media_item.ID, "")
     if err != nil {
       log.Fatal(err)
     }
-
-    slack_api.PostMessage(
-      channelID,
-      "",
-      message_parameters,
-    )
+    message = "Listening to '" + media_item.Title + "'"
+  } else {
+    message = "I couldn't find anything for '" + search_text + "'"
   }
+  slack_api.PostMessage(
+    channelID,
+    message,
+    message_parameters,
+  )
 }
