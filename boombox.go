@@ -28,7 +28,6 @@ func (boombox *boomBox) addChannel(channel string, slack_api *slack.Client) {
       }
     }
   }
-  boombox.Channels = append(boombox.Channels, channel)
 
   if err != nil {
     log.Printf(
@@ -42,6 +41,7 @@ func (boombox *boomBox) addChannel(channel string, slack_api *slack.Client) {
       slack_message_parameters,
     )
   } else {
+    boombox.Channels = append(boombox.Channels, channel)
     log.Printf("BoomBox started in channel [%s]", channel)
     slack_api.PostMessage(
       channel,
