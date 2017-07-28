@@ -5,6 +5,7 @@ import (
   "github.com/nlopes/slack"
   "github.com/inteliquent/casatunes"
   "log"
+  "strings"
 )
 
 func casa_SearchSong(slack_api *slack.Client, ev *slack.MessageEvent) {
@@ -16,7 +17,10 @@ func casa_SearchSong(slack_api *slack.Client, ev *slack.MessageEvent) {
 
   channelID := ev.Channel
 
-  search_text := regexp_searchsong.FindStringSubmatch(ev.Text)[1]
+  search_type := strings.ToLower(regexp_searchsong.FindStringSubmatch(ev.Text)[1])
+  search_text := regexp_searchsong.FindStringSubmatch(ev.Text)[2]
+
+  slack_attachment_fields := []slack.AttachmentField{}
 
   media_collection, err := casa_api.MediaSearchMC("070cb4f4bdba71f00352207de5049ddd", search_text)
 
@@ -25,12 +29,26 @@ func casa_SearchSong(slack_api *slack.Client, ev *slack.MessageEvent) {
   }
 
   media_item := casatunes.RESTMediaItem{}
-  for _, item := range media_collection.MediaItems {
-    if item.GroupName == "Tracks" {
-      media_item = item
-      break
+  if search_type == "album" || search_type == "playlist" {
+    for _, item := range media_collection.MediaItems {
+      if item.GroupName == "Playlists" || item.GroupName == "Albums" {
+        media_item = item
+        slack_attachment_fields = append(slack_attachment_fields, slack.AttachmentField{Title: "Title", Value: media_item.Title})
+        break
+      }
+    }
+  } else if search_type == "title" || search_type == "song" {
+    for _, item := range media_collection.MediaItems {
+      if item.GroupName == "Tracks" {
+        media_item = item
+        slack_attachment_fields = append(slack_attachment_fields, slack.AttachmentField{Title: "Title", Value: media_item.Title})
+        slack_attachment_fields = append(slack_attachment_fields, slack.AttachmentField{Title: "Artist", Value: media_item.Artists, Short: true})
+        slack_attachment_fields = append(slack_attachment_fields, slack.AttachmentField{Title: "Album", Value: media_item.Album, Short: true})
+        break
+      }
     }
   }
+
 
   if err != nil {
     log.Fatal(err)
@@ -43,22 +61,7 @@ func casa_SearchSong(slack_api *slack.Client, ev *slack.MessageEvent) {
       TitleLink: CASA_ENDPOINT,
       ThumbURL: media_item.ArtworkURI,
       Color: "#009933",
-      Fields: []slack.AttachmentField{
-        slack.AttachmentField{
-          Title: "Title",
-          Value: media_item.Title,
-        },
-        slack.AttachmentField{
-          Title: "Artist",
-          Value: media_item.Artists,
-          Short: true,
-        },
-        slack.AttachmentField{
-          Title: "Album",
-          Value: media_item.Album,
-          Short: true,
-        },
-      },
+      Fields: slack_attachment_fields,
     }
 
     message_parameters.Attachments = []slack.Attachment{attachment}

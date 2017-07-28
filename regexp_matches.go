@@ -13,7 +13,7 @@ var (
     `(?i)put on (?:album|playlist) (.+)$`,
   )
   regexp_searchsong *regexp.Regexp = regexp.MustCompile(
-    `(?i)search(?: for)? (.+)$`,
+    `(?i)search(?: for)? (song|title|playlist|album) (.+)$`,
   )
   regexp_playeraction *regexp.Regexp = regexp.MustCompile(
     `(?i)(play|pause|next|previous|stop) (?:song|track|music)$`,
