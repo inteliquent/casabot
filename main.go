@@ -48,47 +48,9 @@ func main() {
         user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
         switch user_input {
         case "start":
-          err := boombox.addChannel(ev.Channel)
-          if err != nil {
-            log.Printf(
-              "Failed to start BoomBox in channel [%s]: %s",
-              ev.Channel,
-              err,
-            )
-            slack_api.PostMessage(
-              ev.Channel,
-              fmt.Sprint(err),
-              slack_message_parameters,
-            )
-          } else {
-            log.Printf("BoomBox started in channel [%s]", ev.Channel)
-            slack_api.PostMessage(
-              ev.Channel,
-              "BoomBox started! I'll report future song changes to this channel.",
-              slack_message_parameters,
-            )
-          }
+          boombox.addChannel(ev.Channel, slack_api)
         case "stop":
-          err := boombox.removeChannel(ev.Channel)
-          if err != nil {
-            log.Printf(
-              "Failed to stop BoomBox in channel [%s]: %s",
-              ev.Channel,
-              err,
-            )
-            slack_api.PostMessage(
-              ev.Channel,
-              fmt.Sprint(err),
-              slack_message_parameters,
-            )
-          } else {
-            log.Printf("BoomBox stopped in channel [%s]", ev.Channel)
-            slack_api.PostMessage(
-              ev.Channel,
-              "BoomBox stopped! I'll stop reporting song changes to this channel.",
-              slack_message_parameters,
-            )
-          }
+          boombox.removeChannel(ev.Channel, slack_api)
         }
       }
     case *slack.RTMError:

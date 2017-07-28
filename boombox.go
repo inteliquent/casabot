@@ -7,6 +7,7 @@ import (
   "os"
   "github.com/inteliquent/casatunes"
   "github.com/nlopes/slack"
+  "fmt"
 )
 
 type boomBox struct {
@@ -15,30 +16,71 @@ type boomBox struct {
 
 // Add a Slack channel to the boomBox object. Return an error
 // if the boomBox object already contains that channel.
-func (boombox *boomBox) addChannel(channel string) (error) {
+func (boombox *boomBox) addChannel(channel string, slack_api *slack.Client) {
+  var err error
+  slack_message_parameters := slack.NewPostMessageParameters()
+  slack_message_parameters.AsUser = true
+
   if len(boombox.Channels) > 0 {
     for _, c := range(boombox.Channels) {
       if c == channel {
-        return errors.New("Channel already in BoomBox!")
+        err = errors.New("Channel already in BoomBox!")
       }
     }
   }
   boombox.Channels = append(boombox.Channels, channel)
-  return nil
+
+  if err != nil {
+    log.Printf(
+      "Failed to start BoomBox in channel [%s]: %s",
+      channel,
+      err,
+    )
+    slack_api.PostMessage(
+      channel,
+      fmt.Sprint(err),
+      slack_message_parameters,
+    )
+  } else {
+    log.Printf("BoomBox started in channel [%s]", channel)
+    slack_api.PostMessage(
+      channel,
+      "BoomBox started! I'll report future song changes to this channel.",
+      slack_message_parameters,
+    )
+  }
 }
 
 // Remove a Slack channel from the boomBox object. Return an error
 // if the channel does not exist within the boomBox object.
-func (boombox *boomBox) removeChannel(channel string) (error) {
+func (boombox *boomBox) removeChannel(channel string, slack_api *slack.Client) {
+  slack_message_parameters := slack.NewPostMessageParameters()
+  slack_message_parameters.AsUser = true
+
   if len(boombox.Channels) > 0 {
     for i, c := range(boombox.Channels) {
       if c == channel {
         boombox.Channels = append(boombox.Channels[:i], boombox.Channels[i+1:]...)
-        return nil
+        log.Printf("BoomBox stopped in channel [%s]", channel)
+        slack_api.PostMessage(
+          channel,
+          "BoomBox stopped! I'll stop reporting song changes to this channel.",
+          slack_message_parameters,
+        )
+        return
       }
     }
   }
-  return errors.New("Channel does not exist in BoomBox!")
+  log.Printf(
+    "Failed to stop BoomBox in channel [%s]: %s",
+    channel,
+    "Channel does not exist in BoomBox!",
+  )
+  slack_api.PostMessage(
+    channel,
+    fmt.Sprint("Channel does not exist in BoomBox!"),
+    slack_message_parameters,
+  )
 }
 
 // This function is meant to run in a go routine. It will
