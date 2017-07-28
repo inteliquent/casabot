@@ -9,6 +9,9 @@ var (
   regexp_playsong *regexp.Regexp = regexp.MustCompile(
     `(?i)listen to (.+)$`,
   )
+  regexp_searchsong *regexp.Regexp = regexp.MustCompile(
+    `(?i)search(?: for)? (.+)$`,
+  )
   regexp_playeraction *regexp.Regexp = regexp.MustCompile(
     `(?i)(play|pause|next|previous) (?:song|track|music)$`,
   )
