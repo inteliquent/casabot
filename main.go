@@ -1,86 +1,104 @@
 package main
 
 import (
-  "github.com/nlopes/slack"
-  "os"
-  "log"
-  "fmt"
+	"github.com/nlopes/slack"
+	"log"
+	"os"
+	"strings"
+)
+
+var (
+	helpText []string = []string{
+		"Available commands are:",
+		"	- `nowplaying` // Display information on the current song",
+		"	- `play (song|album) <search text>`	// Play the first song/album result for _search text_ & add it to the queue",
+		"	- `search (song|album) <search text>` // Print the first song/album result for _search text_",
+		"	- `boombox (start|stop)` // Start or stop displaying the current song in this channel",
+	}
 )
 
 func main() {
-  SLACK_TOKEN := os.Getenv("SLACK_TOKEN")
-  slack_api := slack.New(SLACK_TOKEN)
+	SLACK_TOKEN := os.Getenv("SLACK_TOKEN")
+	slack_api := slack.New(SLACK_TOKEN)
 
-  slack_message_parameters := slack.NewPostMessageParameters()
-  slack_message_parameters.AsUser = true
+	slack_message_parameters := slack.NewPostMessageParameters()
+	slack_message_parameters.AsUser = true
 
-  boombox := boomBox{}
+	// Start the boombox thread
+	boombox := boomBox{}
+	go boombox.start(slack_api)
 
-  go boombox.start(slack_api)
+	logger := log.New(
+		os.Stdout,
+		"slack-bot: ",
+		log.Lshortfile|log.LstdFlags,
+	)
 
-  logger := log.New(
-    os.Stdout,
-    "slack-bot: ",
-    log.Lshortfile|log.LstdFlags,
-  )
+	slack.SetLogger(logger)
 
-  slack.SetLogger(logger)
+	rtm := slack_api.NewRTM()
+	go rtm.ManageConnection()
 
-  rtm := slack_api.NewRTM()
-  go rtm.ManageConnection()
+	for msg := range rtm.IncomingEvents {
+		switch ev := msg.Data.(type) {
+		case *slack.MessageEvent:
+			casabot_command := parseCommand(ev)
+			if casabot_command != nil && casabot_command.UserID == rtm.GetInfo().User.ID {
+				switch strings.ToLower(casabot_command.Command) {
+				case "nowplaying":
+					casa_NowPlaying(slack_api, casabot_command)
+				case "play":
+					switch casabot_command.verb([]string{"song", "album"}) {
+					case "song":
+						casa_PlaySong(slack_api, casabot_command)
+					case "album":
+						casa_PlayAlbum(slack_api, casabot_command)
+					default:
+						casa_PlaySong(slack_api, casabot_command)
+					}
+				case "search":
+					switch casabot_command.verb([]string{"song", "album"}) {
+					default:
+						casa_SearchSong(slack_api, casabot_command)
+					}
+				case "boombox":
+					switch casabot_command.verb([]string{"song", "album"}) {
+					case "start":
+						boombox.addChannel(ev.Channel, slack_api)
+					case "stop":
+						boombox.removeChannel(ev.Channel, slack_api)
+					}
+				case "pause", "resume", "next", "previous":
+					casa_PlayerAction(slack_api, casabot_command)
+				default:
+					var text string
+					for _, line := range helpText {
+						text += line + "\n"
+					}
+					slack_api.PostMessage(ev.Channel, text, slack_message_parameters)
+				}
+			}
 
-  for msg := range rtm.IncomingEvents {
-    switch ev := msg.Data.(type) {
-    case *slack.MessageEvent:
-      if regexp_nowplaying.MatchString(ev.Text) {
-        casa_NowPlaying(slack_api, ev.Channel)
-      }
+		case *slack.RTMError:
+			log.Printf("Error: %s\n", ev.Error())
 
-      if regexp_playsong.MatchString(ev.Text) {
-        casa_PlaySong(slack_api, ev)
-      }
-
-      if regexp_playalbum.MatchString(ev.Text) {
-        casa_PlayAlbum(slack_api, ev)
-      }
-
-      if regexp_searchsong.MatchString(ev.Text) {
-        casa_SearchSong(slack_api, ev)
-      }
-
-      if regexp_playeraction.MatchString(ev.Text) {
-        casa_PlayerAction(slack_api, ev)
-      }
-
-      if regexp_boombox.MatchString(ev.Text) {
-        user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
-        switch user_input {
-        case "start":
-          boombox.addChannel(ev.Channel, slack_api)
-        case "stop":
-          boombox.removeChannel(ev.Channel, slack_api)
-        }
-      }
-    case *slack.RTMError:
-			fmt.Printf("Error: %s\n", ev.Error())
-
-    case *slack.InvalidAuthEvent:
+		case *slack.InvalidAuthEvent:
 			log.Fatal("Invalid credentials")
 
-    case *slack.ConnectionErrorEvent:
-      log.Fatal("Failed to authenticate with Slack API")
+		case *slack.ConnectionErrorEvent:
+			log.Fatal("Failed to authenticate with Slack API")
 
-    case *slack.ConnectingEvent:
-      log.Printf("Connecting to Slack (attempt %d)", ev.Attempt)
+		case *slack.ConnectingEvent:
+			log.Printf("Connecting to Slack (attempt %d)", ev.Attempt)
 
-    case *slack.HelloEvent:
-      log.Printf("Received hello from Slack API.")
+		case *slack.HelloEvent:
+			log.Printf("Received hello from Slack API.")
 
-    case *slack.ConnectedEvent:
-      log.Printf("Connected to %s as %s.", ev.Info.Team.Name, ev.Info.User.Name)
+		case *slack.ConnectedEvent:
+			log.Printf("Connected to %s as %s.", ev.Info.Team.Name, ev.Info.User.Name)
 
-    case *slack.LatencyReport:
-      log.Printf("Latency report: %s", ev.Value)
+		case *slack.LatencyReport:
+			log.Printf("Latency report: %s", ev.Value)
 
 		default:
 			// Ignore other events..
