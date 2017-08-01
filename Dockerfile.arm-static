@@ -1,7 +1,9 @@
-FROM armhf/alpine
+FROM arm64v8/alpine
 LABEL maintainer "gabe.kahen@inteliquent.com"
 
 ADD casabot /
+
+RUN echo http://dl-4.alpinelinux.org/alpine/v3.6/main > /etc/apk/repositories
 
 RUN apk --update upgrade && \
     apk add curl ca-certificates && \
