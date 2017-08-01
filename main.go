@@ -62,7 +62,7 @@ func main() {
 						casa_SearchSong(slack_api, casabot_command)
 					}
 				case "boombox":
-					switch casabot_command.verb([]string{"song", "album"}) {
+					switch casabot_command.verb([]string{"start", "stop"}) {
 					case "start":
 						boombox.addChannel(ev.Channel, slack_api)
 					case "stop":
