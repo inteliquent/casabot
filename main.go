@@ -44,21 +44,17 @@ func main() {
 		case *slack.MessageEvent:
 			casabot_command := parseCommand(ev)
 			if casabot_command != nil && casabot_command.UserID == rtm.GetInfo().User.ID {
-				log.Printf("Command: %+v", casabot_command)
 				switch strings.ToLower(casabot_command.Command) {
 				case "nowplaying":
 					casa_NowPlaying(slack_api, casabot_command)
 				case "play":
 					switch casabot_command.verb([]string{"song", "album"}) {
 					case "song":
-						log.Printf("playing song %s", casabot_command.Args)
-						//casa_PlaySong(slack_api, casabot_command)
+						casa_PlaySong(slack_api, casabot_command)
 					case "album":
-						log.Printf("playing album %s", casabot_command.Args)
-						//casa_PlayAlbum(slack_api, casabot_command)
+						casa_PlayAlbum(slack_api, casabot_command)
 					default:
-						log.Printf("default play song: %s", casabot_command.Args)
-						//casa_PlaySong(slack_api, casabot_command)
+						casa_PlaySong(slack_api, casabot_command)
 					}
 				case "search":
 					switch casabot_command.verb([]string{"song", "album"}) {
