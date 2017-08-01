@@ -37,7 +37,7 @@ func casa_SearchSong(slack_api *slack.Client, command *casabot_command) {
 				break
 			}
 		}
-	case "title", "song":
+	default:
 		for _, item := range media_collection.MediaItems {
 			if item.GroupName == "Tracks" {
 				media_item = item
