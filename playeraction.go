@@ -13,16 +13,20 @@ var (
 	message string
 )
 
-func casa_PlayerAction(slack_api *slack.Client, ev *slack.MessageEvent) {
+func casa_PlayerAction(slack_api *slack.Client, command *casabot_command) {
 	CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
 	casa_api := casatunes.New(CASA_ENDPOINT)
 
 	message_parameters := slack.NewPostMessageParameters()
 	message_parameters.AsUser = true
 
-	channelID := ev.Channel
+	channelID := command.ChannelID
 
-	playerAction := regexp_playeraction.FindStringSubmatch(ev.Text)[1]
+	playerAction := command.Command
+
+	if playerAction == "resume" {
+		playerAction = "play"
+	}
 
 	err := casa_api.SourcesPlayerAction("0", playerAction)
 
@@ -30,18 +34,16 @@ func casa_PlayerAction(slack_api *slack.Client, ev *slack.MessageEvent) {
 		log.Println(err)
 		message = fmt.Sprintf("Oops! %s", err)
 	} else {
-		user, err := slack_api.GetUserInfo(ev.User)
-
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		switch strings.ToLower(playerAction) {
 		case "play":
-			message = fmt.Sprintf("%s has resumed playback!", user.RealName)
+			message = "resumed playback!"
 
 		case "pause":
-			message = fmt.Sprintf("%s has paused playback!", user.RealName)
+			message = "paused playback!"
 
 		case "previous":
 			message = "_*BACK!!*_"
