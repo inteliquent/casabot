@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+var (
+	helpText []string = []string{
+		"Available commands are:",
+		"	- `nowplaying` // Display information on the current song",
+		"	- `play (song|album) <search text>`	// Play the first song/album result for _search text_ & add it to the queue",
+		"	- `search (song|album) <search text>` // Print the first song/album result for _search text_",
+		"	- `boombox (start|stop)` // Start or stop displaying the current song in this channel",
+	}
+)
+
 func main() {
 	SLACK_TOKEN := os.Getenv("SLACK_TOKEN")
 	slack_api := slack.New(SLACK_TOKEN)
@@ -55,20 +65,21 @@ func main() {
 					default:
 						casa_SearchSong(slack_api, casabot_command)
 					}
-				}
-			}
-
-			if regexp_playeraction.MatchString(ev.Text) {
-				casa_PlayerAction(slack_api, ev)
-			}
-
-			if regexp_boombox.MatchString(ev.Text) {
-				user_input := regexp_boombox.FindStringSubmatch(ev.Text)[1]
-				switch user_input {
-				case "start":
-					boombox.addChannel(ev.Channel, slack_api)
-				case "stop":
-					boombox.removeChannel(ev.Channel, slack_api)
+				case "boombox":
+					switch casabot_command.verb([]string{"song", "album"}) {
+					case "start":
+						boombox.addChannel(ev.Channel, slack_api)
+					case "stop":
+						boombox.removeChannel(ev.Channel, slack_api)
+					}
+				case "pause", "resume", "next", "previous":
+					casa_PlayerAction(slack_api, casabot_command)
+				default:
+					var text string
+					for _, line := range helpText {
+						text += line + "\n"
+					}
+					slack_api.PostMessage(ev.Channel, text, slack_message_parameters)
 				}
 			}
 
