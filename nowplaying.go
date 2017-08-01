@@ -7,7 +7,7 @@ import (
   "github.com/inteliquent/casatunes"
 )
 
-func casa_NowPlaying(slack_api *slack.Client, slack_channel_id string) {
+func casa_NowPlaying(slack_api *slack.Client, ev *slack.MessageEvent) {
   CASA_ENDPOINT := os.Getenv("CASA_ENDPOINT")
 
   message_parameters := slack.NewPostMessageParameters()
@@ -26,16 +26,16 @@ func casa_NowPlaying(slack_api *slack.Client, slack_channel_id string) {
     ThumbURL: nowplaying.CurrSong.ArtworkURI,
     Color: "#aeffa0",
     Fields: []slack.AttachmentField{
-      slack.AttachmentField{
+      {
         Title: "Title",
         Value: nowplaying.CurrSong.Title,
       },
-      slack.AttachmentField{
+      {
         Title: "Artist",
         Value: nowplaying.CurrSong.Artists,
         Short: true,
       },
-      slack.AttachmentField{
+      {
         Title: "Album",
         Value: nowplaying.CurrSong.Album,
         Short: true,
@@ -46,7 +46,7 @@ func casa_NowPlaying(slack_api *slack.Client, slack_channel_id string) {
   message_parameters.Attachments = []slack.Attachment{attachment}
   if len(nowplaying.CurrSong.Title) > 0 {
     slack_api.PostMessage(
-      slack_channel_id,
+      ev.Channel,
       "",
       message_parameters,
     )
