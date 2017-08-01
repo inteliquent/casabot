@@ -14,8 +14,8 @@ func main() {
   slack_message_parameters := slack.NewPostMessageParameters()
   slack_message_parameters.AsUser = true
 
+  // Start the boombox thread
   boombox := boomBox{}
-
   go boombox.start(slack_api)
 
   logger := log.New(
@@ -33,7 +33,7 @@ func main() {
     switch ev := msg.Data.(type) {
     case *slack.MessageEvent:
       if regexp_nowplaying.MatchString(ev.Text) {
-        casa_NowPlaying(slack_api, ev.Channel)
+        casa_NowPlaying(slack_api, ev)
       }
 
       if regexp_playsong.MatchString(ev.Text) {
