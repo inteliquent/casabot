@@ -21,3 +21,7 @@ For Raspberry Pi (3), running the commands below will compile a docker image com
 make builddocker-arm
 ```
 This will create a docker image called `inteliquent/arm-casabot`. `docker save` and `docker load` can then be used to port the image to a Raspberry Pi.
+
+## ssh into machine
+From the office:
+`ssh pi@raspberrypi.local`
