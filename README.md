@@ -24,4 +24,6 @@ This will create a docker image called `inteliquent/arm-casabot`. `docker save` 
 
 ## ssh into machine
 From the office:
-`ssh pi@raspberrypi.local`
+```
+ssh pi@raspberrypi.local
+```
