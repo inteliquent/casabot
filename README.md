@@ -12,7 +12,7 @@ The Docker image can then be run with:
 export SLACK_TOKEN='xxx'
 export CASA_ENDPOINT='yyy'
 
-docker run -d -e SLACK_TOKEN -e CASA_ENDPOINT casabot
+docker run -d -e $SLACK_TOKEN -e $CASA_ENDPOINT casabot
 ```
 
 ## Docker ARM7 build
