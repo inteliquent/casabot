@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"fmt"
 )
 
 var (
@@ -102,7 +103,7 @@ func main() {
 
 		default:
 			// Ignore other events..
-			// fmt.Printf("Unexpected: %v\n", msg.Data)
+			fmt.Printf("Unexpected: %v\n", msg.Data)
 		}
 	}
 }
