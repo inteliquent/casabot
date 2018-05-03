@@ -11,8 +11,9 @@ import (
 var (
 	helpText []string = []string{
 		"Available commands are:",
-		"	- `nowplaying` // Display information on the current song",
+		"	- `nowplaying | now playing` // Display information on the current song",
 		"	- `play (song|album) <search text>`	// Play the first song/album result for _search text_ & add it to the queue",
+		"	- `listen to (song|album) <search text>`	// Play the first song/album result for _search text_ & add it to the queue",
 		"	- `search (song|album) <search text>` // Print the first song/album result for _search text_",
 		"	- `boombox (start|stop)` // Start or stop displaying the current song in this channel",
 	}
@@ -51,7 +52,7 @@ func main() {
 				case "now":
 					switch casabot_command.verb([]string{"playing"}) {
 					case "playing":
-						casa_PlaySong(slack_api, casabot_command)
+						casa_NowPlaying(slack_api, casabot_command)
 					default:
 						var text string
 						for _, line := range helpText {
