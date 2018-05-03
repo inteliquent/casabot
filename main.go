@@ -48,6 +48,17 @@ func main() {
 				switch strings.ToLower(casabot_command.Command) {
 				case "nowplaying":
 					casa_NowPlaying(slack_api, casabot_command)
+				case "now":
+					switch casabot_command.verb([]string{"playing"}) {
+					case "playing":
+						casa_PlaySong(slack_api, casabot_command)
+					default:
+						var text string
+						for _, line := range helpText {
+							text += line + "\n"
+						}
+						slack_api.PostMessage(ev.Channel, text, slack_message_parameters)
+					}
 				case "play":
 					switch casabot_command.verb([]string{"song", "album"}) {
 					case "song":
@@ -56,6 +67,24 @@ func main() {
 						casa_PlayAlbum(slack_api, casabot_command)
 					default:
 						casa_PlaySong(slack_api, casabot_command)
+					}
+				case "listen":
+					switch casabot_command.verb([]string{"to"}) {
+					case "to":
+						switch casabot_command.verb([]string{"song", "album"}) {
+						case "song":
+							casa_PlaySong(slack_api, casabot_command)
+						case "album":
+							casa_PlayAlbum(slack_api, casabot_command)
+						default:
+							casa_PlaySong(slack_api, casabot_command)
+						}
+					default:
+						var text string
+						for _, line := range helpText {
+							text += line + "\n"
+						}
+						slack_api.PostMessage(ev.Channel, text, slack_message_parameters)
 					}
 				case "search":
 					switch casabot_command.verb([]string{"song", "album"}) {
