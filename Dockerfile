@@ -6,7 +6,7 @@ ENV CGO_ENABLED=0
 WORKDIR /app
 ADD . .
 RUN apk add git
-RUN GOARCH=${GOARCH} go build
+RUN go build
 
 FROM alpine:3.10.0
 
