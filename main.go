@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/nlopes/slack"
 	"log"
 	"os"
 	"strings"
-	"fmt"
 )
 
 var (

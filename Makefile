@@ -1,9 +1,7 @@
 default: builddocker-amd64
 
-setup:
-	go get -f -u github.com/nlopes/slack
-	go get -f -u github.com/inteliquent/casatunes
-	go get -f -u github.com/inteliquent/casabot
+build:
+	docker build -t layered/casabot .
 
 buildgo-arm:
 	CGO_ENABLED=0 GOOS=linux GOARM=7 go build -ldflags "-s" -a -installsuffix cgo -o /casabot github.com/inteliquent/casabot
